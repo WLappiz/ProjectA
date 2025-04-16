@@ -10,7 +10,7 @@ module.exports = {
     userPermissions: ['ManageRoles'],
     devSev: false,
     devOnly: false,
-    SVOnly: false,
+    SVOnly: true,
     adminOnly: false,
     ownerOnly: false,
     cooldown: 10,

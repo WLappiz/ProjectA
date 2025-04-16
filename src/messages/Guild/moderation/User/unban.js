@@ -29,6 +29,9 @@ module.exports = {
                 });
             }
 
+            let reason = args.slice(1).join(" ") || "Not Provided";
+            reason = `${message.author.tag} (${message.author.id}) | ${reason}`;
+
             // Attempt to unban the user
             try {
                 await message.guild.members.unban(ID);

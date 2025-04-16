@@ -1,3 +1,6 @@
+/**
+ * todo: Create Parameters here
+ */
 const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
@@ -16,7 +19,6 @@ module.exports = {
     cooldown: 5,
     run: async (client, message, args) => {
         try {
-            // Ensure an emoji or URL is provided
             if (!args[0]) {
                 return message.reply({
                     embeds: [
@@ -54,10 +56,9 @@ module.exports = {
                 emoji = url;
             }
 
-            // If it's a URL
             const urlRegex = /(http[s]?:\/\/.*\.(?:png|jpg|gif))/i;
             if (!urlRegex.test(emoji)) {
-                // Check for Unicode emoji
+
                 const unicodeRegex =
                     /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
                 if (!unicodeRegex.test(emoji)) {
@@ -73,12 +74,10 @@ module.exports = {
                 }
             }
 
-            // Generate a random name if none is provided
             if (!name) {
                 name = "emoji_" + Math.random().toString(36).substring(2, 8);
             }
 
-            // Validate emoji name
             if (!/^[a-zA-Z0-9_]+$/.test(name)) {
                 return message.reply({
                     embeds: [
@@ -90,8 +89,6 @@ module.exports = {
                     ],
                 });
             }
-
-            // Notify user about emoji addition
             const loadingMessage = await message.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -100,7 +97,6 @@ module.exports = {
                 ],
             });
 
-            // Try to add the emoji
             try {
                 const newEmoji = await message.guild.emojis.create({
                     attachment: emoji,

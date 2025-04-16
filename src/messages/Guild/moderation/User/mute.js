@@ -29,7 +29,7 @@ module.exports = {
             }
 
             let duration = args[1] || "1m"; // Default duration if not provided
-            let reason = args.slice(2).join(" ") || "None";
+            let reason = args.slice(2).join(" ") || "Not Provided";
             reason = `${message.author.tag} (${message.author.id}) | ${reason}`;
 
             const targetMember = await message.guild.members

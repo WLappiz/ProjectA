@@ -29,6 +29,9 @@ module.exports = {
                 });
             }
 
+            let reason = args.slice(1).join(" ") || "Not Provided";
+            reason = `${message.author.tag} (${message.author.id}) | ${reason}`;
+
             const targetMember = await message.guild.members
                 .fetch(user.id)
                 .catch(() => null);

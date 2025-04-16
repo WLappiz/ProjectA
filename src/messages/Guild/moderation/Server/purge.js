@@ -34,6 +34,9 @@ module.exports = {
                 });
             }
 
+            let reason = args.slice(1).join(" ") || "Not Provided";
+            reason = `${message.author.tag} (${message.author.id}) | ${reason}`;
+
             const embed = new EmbedBuilder()
                 .setDescription(`Are you sure you want to delete ${amount} messages?`)
                 .setColor(client.color.DEFAULT);

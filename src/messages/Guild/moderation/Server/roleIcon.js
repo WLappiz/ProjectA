@@ -16,7 +16,7 @@ module.exports = {
     cooldown: 5,
     run: async (client, message, args) => {
         try {
-            // Retrieve the specified role
+            
             const role =
                 message.mentions.roles.first() ||
                 message.guild.roles.cache.get(args[0]) ||
@@ -36,7 +36,7 @@ module.exports = {
                 });
             }
 
-            // If no icon URL is provided, display the current role icon
+            
             if (!args[1]) {
                 const embed = new EmbedBuilder()
                     .setColor(client.color.DEFAULT)
@@ -62,7 +62,7 @@ module.exports = {
                 return message.reply({ embeds: [embed] });
             }
 
-            // Check if the role is manageable by the bot
+            
             if (!role.editable) {
                 return message.reply({
                     embeds: [
@@ -75,7 +75,6 @@ module.exports = {
                 });
             }
 
-            // Attempt to set the role's icon
             try {
                 await role.setIcon(args[1]);
 

@@ -15,7 +15,7 @@ module.exports = {
     description: "Shows detailed information about the bot.",
     usage: "stats",
     botPermissions: [],
-    userPermissions: [],
+    userPermissions: ['SendMessages'],
     adminOnly: false,
     ownerOnly: false,
     devSev: false,
@@ -24,7 +24,7 @@ module.exports = {
     cooldown: 5000,
     run: async (client, message, args) => {
         try {
-            // Create interactive buttons
+            
             const buttons = [
                 new ButtonBuilder()
                     .setLabel("Team Info")
@@ -74,7 +74,7 @@ module.exports = {
                         `Bot Mention: ${client.user}`,
                         `Bot Tag: ${client.user.tag}`,
                         `Bot Version: ${pkg.version || "1.0.0"}`,
-                        `Discord.js: v${client.constructor.version}`,
+                        `Discord.js: ^v14.18.0 (Keep Updating)`,
                         `Node.js: ${process.version}`,
                         "",
                         "**__Statistics__**",
@@ -94,13 +94,13 @@ module.exports = {
                 })
                 .setTimestamp();
 
-            // Send message with interactive buttons
+            
             const msg = await message.reply({
                 embeds: [embed],
                 components: [row],
             });
 
-            // Set up collector for button interaction
+            
             const collector = msg.createMessageComponentCollector({
                 filter: (i) => i.user.id === message.author.id,
                 time: 60000,
@@ -123,7 +123,7 @@ module.exports = {
                     })
                     .setTimestamp();
 
-                // Update button states
+               
                 buttons.forEach((button) =>
                     button.setDisabled(button.data.custom_id === interaction.customId)
                 );
@@ -139,6 +139,8 @@ module.exports = {
                                 `[1] Wlappiz: `,
                                 ` - [GitHub](https://github.com/Wlappiz)`,
                                 ` - [Discord](https://discord.com/users/1350436598843441193)`,
+                                ` - [Instagram](https://instagram/username/)`,
+                                ` - [Reddit](https://URL)`,
                                 "",
                             ].join("\n")
                         );
