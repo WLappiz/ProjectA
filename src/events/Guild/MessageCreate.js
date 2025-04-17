@@ -1,6 +1,6 @@
 const { default: chalk } = require("chalk");
 const config = require('../../config');
-const { EmbedBuilder, Collection } = require('discord.js');
+const { EmbedBuilder, Collection, PermissionFlagsBits } = require('discord.js');
 const { getSimilarCommands } = require('../../handlers/Similarity');
 const path = require('path');
 const fs = require('fs');
@@ -29,6 +29,35 @@ function logErrorToFile(error) {
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
+
+        if (message.guild) {
+
+
+            if (!message.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
+                const embed = new EmbedBuilder()
+                    .setColor(client.color.DANGER)
+                    .setDescription(
+                        `${client.emote.utility.cross} | I lack the necessary permissions to send messages in this server\n` +
+                        `Server Name: ${message.guild.name}.`
+                    )
+                    .setTimestamp();
+
+                message.guild.fetchOwner()
+                    .then(owner => {
+                        owner.user.send({ embeds: [embed] })
+                            .then(() => console.log("DM sent successfully"))
+                            .catch(error => console.error("Failed to send DM to the owner:", error));
+                    })
+                    .catch(error => {
+                        console.error("Failed to fetch the guild owner:", error);
+                    });
+                return;
+            }
+            return;
+
+        }
+
+
 
         const prefix = config.prefix.value;
         const content = message.content.toLowerCase();
