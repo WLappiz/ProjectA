@@ -56,13 +56,21 @@ function prefixHandler(client, prefixPath) {
             if (command.name) {
                 client.prefix.set(command.name, command);
                 log(`Loaded Prefix command: ${chalk.green(command.name)}`, 'SUCCESS');
+
+                // Handle aliases
+                if (command.aliases && Array.isArray(command.aliases)) {
+                    command.aliases.forEach(alias => {
+                        client.prefix.set(alias, command);
+                        log(`Loaded alias: ${chalk.green(alias)} for command: ${chalk.green(command.name)}`, 'SUCCESS');
+                    });
+                }
             } else {
                 log(`Command in ${chalk.yellow(path.basename(filePath))} is missing a name.`, 'WARNING');
             }
         } catch (error) {
             log(`Failed to load prefix command in ${chalk.red(path.basename(filePath))}`, 'ERROR');
             console.error(error);
-            logErrorToFile(error)
+            logErrorToFile(error);
         }
     };
 

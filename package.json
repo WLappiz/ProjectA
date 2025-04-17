@@ -7,7 +7,7 @@
     "test": "jest",
     "jest": "jest",
     "start": "node src/index.js",
-    "dev": "nodemon src/core/main.js",
+    "dev": "node src/core/main.js",
     "watch": "chokidar \"src/**/*.js\" -c \"npm run test\""
   },
   "repository": {

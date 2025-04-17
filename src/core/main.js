@@ -1,5 +1,5 @@
 const Subject = require('./client.js');
-const client = new Subject()
+const client = new Subject({})
 const config = require('../config.js')
 const { default: chalk } = require('chalk');
 const { eventsHandler } = require('../handlers/EventHandler.js');

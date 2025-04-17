@@ -1,9 +1,9 @@
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+
 module.exports = {
   name: "avatar",
   description: "Get avatar of user.",
   aliases: ["aliases"],
-  botPermissions: ["SendMessages", "EmbedLinks"],
-  userPermissions: ["SendMessages"],
   adminOnly: false,
   ownerOnly: false,
   devSev: false,
@@ -73,21 +73,26 @@ module.exports = {
         const mutualGuilds = client.guilds.cache.filter((g) =>
           g.members.cache.has(message.author.id)
         );
+
         if (mutualGuilds.size > 0) {
-          const options = mutualGuilds
-            .map((g) => ({
-              label: g.name.length > 25 ? g.name.slice(0, 22) + "..." : g.name,
-              value: g.id,
-              description: `View avatar in ${g.name}`,
-            }))
-            .toArray();
+          const options = mutualGuilds.map((g) => ({
+            label: g.name.length > 25 ? g.name.slice(0, 22) + "..." : g.name,
+            value: g.id,
+            // Truncate description to always be <= 100 characters
+            description: `View avatar in ${g.name.length > 80 ? g.name.slice(0, 77) + "..." : g.name
+              }`,
+          }));
+
           const selectMenu = new StringSelectMenuBuilder()
             .setCustomId("dm_server_avatar")
             .setPlaceholder("Select a server for server avatar")
             .addOptions(options);
+
           const selectRow = new ActionRowBuilder().addComponents(selectMenu);
           components.push(selectRow);
         }
+
+
       }
 
       // Create the initial embed showing the global avatar
@@ -97,7 +102,7 @@ module.exports = {
           iconURL: target.displayAvatarURL({ dynamic: true }),
         })
         .setImage(target.displayAvatarURL({ size: 4096, dynamic: true }))
-        .setColor(client.color)
+        .setColor(client.color.DEFAULT)
         .setFooter({
           text: `Requested by ${message.author.tag}`,
           iconURL: message.author.displayAvatarURL({ dynamic: true }),
@@ -123,7 +128,7 @@ module.exports = {
         }
 
         await interaction.deferUpdate();
-        const newEmbed = new EmbedBuilder().setColor(client.color).setFooter({
+        const newEmbed = new EmbedBuilder().setColor(client.color.DEFAULT).setFooter({
           text: `Requested by ${message.author.tag}`,
           iconURL: message.author.displayAvatarURL({ dynamic: true }),
         });
@@ -231,14 +236,14 @@ module.exports = {
           row.components.forEach((comp) => comp.setDisabled(true));
           return row;
         });
-        await sentMsg.edit({ components: disabledComponents }).catch(() => {});
+        await sentMsg.edit({ components: disabledComponents }).catch(() => { });
       });
     } catch (error) {
       console.error("Avatar Command Error:", error);
       message.channel.send({
         embeds: [
           new EmbedBuilder()
-            .setColor("Red")
+            .setColor(client.color.DANGER)
             .setDescription(
               `${client.emote.utility.cross} | Failed to fetch avatar. Please try again.`
             ),

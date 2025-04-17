@@ -1,11 +1,12 @@
 const { default: chalk } = require("chalk");
 const config = require('../../config');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, Collection } = require('discord.js');
 const { getSimilarCommands } = require('../../handlers/Similarity');
 const path = require('path');
 const fs = require('fs');
 const { RateLimiter } = require('discord.js-rate-limiter');
 const errorsDir = path.join(__dirname, '../../../logs/errors');
+
 
 function ensureErrorDirectoryExists() {
     if (!fs.existsSync(errorsDir)) {
@@ -63,7 +64,7 @@ module.exports = {
 
 
         if (command.devSev) {
-            if (!config.bot.developerCommandsServerIds.includes(message.guild.id)) {
+            if (!config.bot.developerCommandsServerIds.includes(message.guild?.id)) {
                 return;
             }
         }
@@ -79,21 +80,14 @@ module.exports = {
             }
         }
 
-        if (command.SVOnly) {
-            if (!message.guild) {
-                const embed = new EmbedBuilder()
-                    .setColor('Blue')
-                    .setDescription(`❌ | This command is server-only. You cannot run this command in a DM channel.`)
-                return await message.reply({
-                    embeds: [embed]
-                });
-            }
-        }
-
-
-        if (!client.cooldowns) {
-            client.cooldowns = new Map();
-        }
+        if (command.SVOnly && !message.guild) {
+            const embed = new EmbedBuilder()
+                .setColor('Blue')
+                .setDescription(`❌ | This command is server-only. You cannot run this command in a DM channel.`)
+            return await message.reply({
+                embeds: [embed]
+            });
+        } else { true }
 
         const now = Date.now();
         const cooldownAmount = (command.cooldown || 3) * 1000;
@@ -142,44 +136,48 @@ module.exports = {
             });
         }
 
-        if (command.userPermissions) {
-            const memberPermissions = message.member.permissions;
-            const missingPermissions = command.userPermissions.filter(perm => !memberPermissions.has(perm));
-            if (missingPermissions.length) {
+        if (message.guild) {
+            if (command.userPermissions) {
+                const memberPermissions = message.member.permissions;
+                const missingPermissions = command.userPermissions.filter(perm => !memberPermissions.has(perm));
+                if (missingPermissions.length) {
+                    const embed = new EmbedBuilder()
+                        .setColor('Blue')
+                        .setDescription(`\`❌\` | You lack the necessary permissions to execute this command: \`\`\`${missingPermissions.join(", ")}\`\`\``)
+
+                    return message.reply({
+                        embeds: [embed],
+                    });
+                }
+            }
+
+            if (command.botPermissions) {
+                const botPermissions = message.guild.members.me.permissions;
+                const missingBotPermissions = command.botPermissions.filter(perm => !botPermissions.has(perm));
+                if (missingBotPermissions.length) {
+                    const embed = new EmbedBuilder()
+                        .setColor('Blue')
+                        .setDescription(`\`❌\` | I lack the necessary permissions to execute this command: \`\`\`${missingBotPermissions.join(", ")}\`\`\``)
+
+                    return message.reply({
+                        embeds: [embed],
+                    });
+                }
+            }
+        } else { true }
+
+        if (message.guild) {
+            let rateLimiter = new RateLimiter(1, 2000);
+            let limited = rateLimiter.take(message.author.id);
+            if (limited && message.author.id !== config.bot.ownerId) {
                 const embed = new EmbedBuilder()
                     .setColor('Blue')
-                    .setDescription(`\`❌\` | You lack the necessary permissions to execute this command: \`\`\`${missingPermissions.join(", ")}\`\`\``)
+                    .setDescription(`\`❌\` | You are being rate limited. Please try again later.`)
 
                 return message.reply({
                     embeds: [embed],
-                });
+                })
             }
-        }
-
-        if (command.botPermissions) {
-            const botPermissions = message.guild.members.me.permissions;
-            const missingBotPermissions = command.botPermissions.filter(perm => !botPermissions.has(perm));
-            if (missingBotPermissions.length) {
-                const embed = new EmbedBuilder()
-                    .setColor('Blue')
-                    .setDescription(`\`❌\` | I lack the necessary permissions to execute this command: \`\`\`${missingBotPermissions.join(", ")}\`\`\``)
-
-                return message.reply({
-                    embeds: [embed],
-                });
-            }
-        }
-
-        let rateLimiter = new RateLimiter(1, 2000);
-        let limited = rateLimiter.take(message.author.id);
-        if (limited && message.author.id !== config.bot.ownerId) {
-            const embed = new EmbedBuilder()
-                .setColor('Blue')
-                .setDescription(`\`❌\` | You are being rate limited. Please try again later.`)
-
-            return message.reply({
-                embeds: [embed],
-            })
         }
 
         try {
@@ -191,16 +189,22 @@ module.exports = {
                 return;
             }
 
+            // Build the log embed dynamically based on whether message.guild exists
             const logEmbed = new EmbedBuilder()
                 .setColor('Blue')
                 .setTitle('Command Executed')
                 .addFields(
                     { name: 'User', value: `${message.author.tag} (${message.author.id})`, inline: true },
                     { name: 'Command', value: `${config.prefix.value}${command.name}`, inline: true },
-                    { name: 'Server', value: `${message.guild.name} (${message.guild.id})`, inline: true },
                     { name: 'Timestamp', value: new Date().toLocaleString(), inline: true }
                 )
                 .setTimestamp();
+
+            if (message.guild) {
+                logEmbed.addFields({ name: 'Server', value: `${message.guild.name} (${message.guild?.id})`, inline: true });
+            } else {
+                logEmbed.addFields({ name: 'Channel', value: 'DM', inline: true });
+            }
 
             if (config.logging.commandLogsChannelId) {
                 const logsChannel = client.channels.cache.get(config.logging.commandLogsChannelId);
@@ -208,18 +212,17 @@ module.exports = {
                     await logsChannel.send({ embeds: [logEmbed] });
                 } else {
                     if (config.logging.commandLogsChannelId === 'COMMAND_LOGS_CHANNEL_ID') return;
-
                     console.error(chalk.yellow(`Logs channel with ID ${config.logging.commandLogsChannelId} not found.`));
                 }
             }
         } catch (error) {
-            console.log(chalk.red.bold('ERROR: ') + `Failed to execute command "${commandName}".`);
+            console.log(chalk.default.red.bold('ERROR: ') + `Failed to execute command "${commandName}".`);
             console.error(error);
             message.reply({
                 content: 'There was an error while executing this command!',
             });
-            logErrorToFile(error)
-
+            logErrorToFile(error);
         }
+
     }
 };
