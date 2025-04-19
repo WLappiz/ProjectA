@@ -10,11 +10,11 @@ const {
 // Define your custom categories and commands
 const categories = {
     "🛡️ Antinuke": {
-        description: "Comming Soon",
+        description: "Coming Soon",
         commands: {
             /*antinuke: {
-              description: "Coming Soonnn",
-              usage: "Soonn",
+              description: "Coming Soon",
+              usage: "Soon",
             },
             whitelist: {
               description: "Whitelist a user from anti-nuke",
@@ -53,7 +53,7 @@ const categories = {
             },
             warn: {
                 description: "Warncommands",
-                usage: "warn add/revmove/show <user> <reason || Null>",
+                usage: "warn add/remove/show <user> <reason || Null>",
             },
             unban: {
                 description: "Unban a user from the server",
@@ -182,7 +182,7 @@ const categories = {
         },
     },
     "🎮 Fun": {
-        description: "Comming Soon",
+        description: "Coming Soon",
         /*commands: {
           "8ball": {
             description: "Ask the magic 8ball",

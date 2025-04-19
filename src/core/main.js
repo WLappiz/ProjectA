@@ -9,11 +9,11 @@ const fs = require('fs');
 const path = require('path');
 const errorsDir = path.join(__dirname, '../logs/errors');
 const { checkMissingIntents } = require('../handlers/requiredIntents.js');
-// @ts-ignore
 const { antiCrash } = require('../handlers/antiCrash.js');
 antiCrash();
-
-require('../handlers/watchFolders.js');
+const { connect } = require('mongoose');
+const startWatchers = require('../handlers/watchFolders.js');
+startWatchers();
 
 function ensureErrorDirectoryExists() {
     if (!fs.existsSync(errorsDir)) {
@@ -39,6 +39,14 @@ function logErrorToFile(error) {
         console.error(chalk.red(error));
         logErrorToFile(error);
     });
+
+    await connect(client.config.database.mongodbUrl)
+        .then(() => console.log('Connected to MongoDB!'))
+        .catch((error) => {
+            console.error(chalk.red.bold('ERROR: ') + 'Failed to connect to MongoDB:', error);
+            logErrorToFile(error);
+        });
+
     if (client.user) {
         console.log(chalk.green.bold('SUCCESS: ') + 'Bot logged in successfully!');
     } else {

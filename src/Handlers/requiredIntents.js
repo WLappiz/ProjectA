@@ -56,7 +56,6 @@ const REQUIRED_INTENTS = {
     'autoModerationActionExecution': GatewayIntentBits.AutoModerationExecution,
 };
 
-// Updated function
 function checkMissingIntents(client) {
     const missingIntents = new Set();
 

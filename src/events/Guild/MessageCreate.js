@@ -30,9 +30,26 @@ module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
 
+        const prefix = config.prefix.value;
+        const content = message.content.toLowerCase();
+        if (prefix === '') return;
+        if (!content.startsWith(prefix) || message.author.bot) return;
+
+        const args = content.slice(prefix.length).trim().split(/ +/);
+        const commandName = args.shift().toLowerCase();
+
+        if (!client.prefix || client.prefix.size === 0) {
+            return;
+        }
+
+        let command = client.prefix.get(commandName);
+        if (!command) {
+            command = Array.from(client.prefix.values()).find(
+                (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+            );
+        }
+
         if (message.guild) {
-
-
             if (!message.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
                 const embed = new EmbedBuilder()
                     .setColor(client.color.DANGER)
@@ -53,29 +70,6 @@ module.exports = {
                     });
                 return;
             }
-            return;
-
-        }
-
-
-
-        const prefix = config.prefix.value;
-        const content = message.content.toLowerCase();
-        if (prefix === '') return;
-        if (!content.startsWith(prefix) || message.author.bot) return;
-
-        const args = content.slice(prefix.length).trim().split(/ +/);
-        const commandName = args.shift().toLowerCase();
-
-        if (!client.prefix || client.prefix.size === 0) {
-            return;
-        }
-
-        let command = client.prefix.get(commandName);
-        if (!command) {
-            command = Array.from(client.prefix.values()).find(
-                (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
-            );
         }
 
         if (!command) {

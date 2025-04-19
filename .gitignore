@@ -139,6 +139,7 @@ dist
 .vscode
 package-lock.json
 testtoken.js
+change.js
 
 # Temporary Ignore files
 web

@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, MessageFlags } = require("discord.js");
 const chalk = require("chalk");
 const path = require("path");
 const fs = require("fs");
@@ -29,7 +29,7 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setColor("Blue")
                     .setDescription(`\`🤔\` | Command "${interaction.commandName}" not found.`);
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
 
             // Server Only Command Check
@@ -37,7 +37,7 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setColor("Blue")
                     .setDescription(`❌ | This command can only be used within a server.`);
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
 
             // Permission Checks
@@ -50,7 +50,7 @@ module.exports = {
                     const embed = new EmbedBuilder()
                         .setColor("Blue")
                         .setDescription(`❌ | You lack the necessary permissions: \`${missingUserPerms.join(", ")}\``);
-                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
 
                 const missingBotPerms = botPermissions.filter(perm => !interaction.guild.members.me.permissions.has(perm));
@@ -58,7 +58,7 @@ module.exports = {
                     const embed = new EmbedBuilder()
                         .setColor("Blue")
                         .setDescription(`❌ | I lack the necessary permissions: \`${missingBotPerms.join(", ")}\``);
-                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
             }
 
@@ -67,13 +67,13 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setColor("Blue")
                     .setDescription(`❌ | This command is restricted to developers.`);
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
             if (command.adminOnly && !config.bot.admins.includes(interaction.user.id)) {
                 const embed = new EmbedBuilder()
                     .setColor("Blue")
                     .setDescription(`❌ | This command is restricted to admins.`);
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+                return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
 
             if (command.ownerOnly) {
@@ -83,7 +83,7 @@ module.exports = {
                         .setDescription(`\`❌\` | This command is owner-only. You cannot run this command.`)
                     return await interaction.reply({
                         embeds: [embed],
-                        ephemeral: true
+                        flags: MessageFlags.Ephemeral
                     });
                 }
             }
@@ -101,7 +101,7 @@ module.exports = {
                     const embed = new EmbedBuilder()
                         .setColor("Blue")
                         .setDescription(`❌ | Please wait ${timeLeft}s before using \`${command.name}\` again.`);
-                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
             }
 
@@ -139,7 +139,7 @@ module.exports = {
             if (!interaction.deferred && !interaction.replied) {
                 interaction.reply({
                     content: "An error occurred while executing the command.",
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 }).catch(() => { });
             }
             logErrorToFile(error);
